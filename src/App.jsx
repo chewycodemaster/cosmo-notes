@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { 
-  Search, Plus, Bookmark, Trash2, Cloud, CloudOff, 
-  RefreshCw, Settings, ChevronLeft, ChevronRight, X 
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import {
+  Search, Plus, Bookmark, Trash2, Cloud, CloudOff,
+  RefreshCw, Settings, X
 } from 'lucide-react';
 
 // --- Utility Functions ---
@@ -131,9 +131,6 @@ export default function CosmoNotes() {
   // --- Keyboard Shortcuts ---
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // Don't hijack if user is intensely typing in content, unless using modifiers
-      const isInputFocused = document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'INPUT';
-
       // New Note: Ctrl+N or Cmd+N
       if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
         e.preventDefault();
@@ -486,13 +483,13 @@ export default function CosmoNotes() {
               </div>
             </div>
             <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
-              <button 
+              <button
                 onClick={() => setIsSettingsOpen(false)}
                 className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200 rounded-lg transition-colors"
               >
                 Close
               </button>
-              <button 
+              <button
                 onClick={() => {
                   syncWithTurso();
                   setIsSettingsOpen(false);
@@ -501,6 +498,9 @@ export default function CosmoNotes() {
               >
                 Save & Sync
               </button>
+            </div>
+            <div className="px-6 py-3 flex justify-center">
+              <img src="/chewy-studios.png" alt="Chewy Studios" className="h-10 opacity-70" />
             </div>
           </div>
         </div>

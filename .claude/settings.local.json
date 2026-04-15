@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git config *)"
+      "Bash(git config *)",
+      "Bash(node_modules/.bin/vite build *)",
+      "Bash(timeout 10 npm run dev)"
     ]
   }
 }

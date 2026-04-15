@@ -1,0 +1,18 @@
+{
+  "name": "CosmoNotes",
+  "short_name": "CosmoNotes",
+  "description": "A clean, fast notes app with optional cloud sync",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f4f6f8",
+  "theme_color": "#f05a30",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
