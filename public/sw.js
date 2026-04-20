@@ -1,20 +1,19 @@
-const CACHE_NAME = 'cosmo-notes-v1';
+const CACHE_NAME = 'cosmo-notes-v2';
 
-// Pre-cache the app shell on install
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.add('/'))
-  );
   self.skipWaiting();
+  // Pre-cache the shell — don't abort install if this fails
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then((cache) => cache.add('/'))
+      .catch(() => {})
+  );
 });
 
-// Remove old caches on activate
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(
-        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
-      )
+      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
     )
   );
   self.clients.claim();
@@ -25,30 +24,28 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(event.request.url);
 
-  // Never cache Turso API calls — always hit the network
   if (url.hostname.includes('turso.io')) return;
 
-  // Navigation requests: network first, fall back to cached shell
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request).catch(() =>
-        caches.match('/').then((cached) => cached || caches.match(event.request))
-      )
+      fetch(event.request)
+        .catch(() => caches.match('/').then((c) => c || caches.match(event.request)))
     );
     return;
   }
 
-  // Static assets: cache first, add to cache on first fetch
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
-      return fetch(event.request).then((response) => {
-        if (response.ok) {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-        }
-        return response;
-      });
+      return fetch(event.request)
+        .then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return response;
+        })
+        .catch(() => new Response('', { status: 503, statusText: 'Offline' }));
     })
   );
 });

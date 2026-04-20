@@ -2,6 +2,7 @@
   "name": "CosmoNotes",
   "short_name": "CosmoNotes",
   "description": "A clean, fast notes app with optional cloud sync",
+  "id": "/",
   "start_url": "/",
   "display": "standalone",
   "orientation": "any",

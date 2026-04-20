@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import {
   Search, Plus, Bookmark, Trash2, Cloud, CloudOff,
-  RefreshCw, Settings, X
+  RefreshCw, Settings, X, Download
 } from 'lucide-react';
 
 const generateId = () => crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15);
@@ -30,6 +30,8 @@ export default function CosmoNotes() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [noteToDelete, setNoteToDelete] = useState(null);
   const [tursoConfig, setTursoConfig] = useState({ url: '', token: '' });
+
+  const [installPrompt, setInstallPrompt] = useState(null);
 
   const titleInputRef = useRef(null);
   const editorRef = useRef(null);
@@ -62,6 +64,25 @@ export default function CosmoNotes() {
   useEffect(() => {
     localStorage.setItem('cosmo_turso_config', JSON.stringify(tursoConfig));
   }, [tursoConfig]);
+
+  // Capture PWA install prompt
+  useEffect(() => {
+    const handler = (e) => { e.preventDefault(); setInstallPrompt(e); };
+    const installed = () => setInstallPrompt(null);
+    window.addEventListener('beforeinstallprompt', handler);
+    window.addEventListener('appinstalled', installed);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handler);
+      window.removeEventListener('appinstalled', installed);
+    };
+  }, []);
+
+  const handleInstall = async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    const { outcome } = await installPrompt.userChoice;
+    if (outcome === 'accepted') setInstallPrompt(null);
+  };
 
   // Sync editor DOM content when the selected note changes
   useEffect(() => {
@@ -239,13 +260,24 @@ export default function CosmoNotes() {
             </button>
             <h1 className="text-lg font-semibold tracking-tight text-gray-800">Notes</h1>
           </div>
-          <button
-            onClick={handleCreateNote}
-            className="bg-[#8B1A2D] text-white p-1.5 rounded-full shadow-sm hover:bg-[#7A1526] transition-all transform hover:scale-105"
-            title="New Note (Ctrl+N)"
-          >
-            <Plus size={18} />
-          </button>
+          <div className="flex items-center gap-1.5">
+            {installPrompt && (
+              <button
+                onClick={handleInstall}
+                className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-[#8B1A2D] transition-colors"
+                title="Install App"
+              >
+                <Download size={16} />
+              </button>
+            )}
+            <button
+              onClick={handleCreateNote}
+              className="bg-[#8B1A2D] text-white p-1.5 rounded-full shadow-sm hover:bg-[#7A1526] transition-all transform hover:scale-105"
+              title="New Note (Ctrl+N)"
+            >
+              <Plus size={18} />
+            </button>
+          </div>
         </div>
 
         {/* Search */}
